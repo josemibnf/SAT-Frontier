@@ -2,29 +2,26 @@
 
 import random
 import sys
-import math
+import json
 import os
 
 
-def parse(file):
-    clauses = []
+def parse(cnf):
+    lit_clause = {}
+    clauses = cnf
     count = 0
-    for line in file:
-        if line[0] == 'c':
-            continue
-        if line[0] == 'p':
-            n_vars = int(line.split()[2])
-            lit_clause = [[] for _ in range(n_vars * 2 + 1)]
-            continue
-
-        clause = []
-        for literal in line[:-2].split():
-            literal = int(literal)
-            clause.append(literal)
-            lit_clause[literal].append(count)
-        clauses.append(clause)
+    n_vars = 0
+    for clause in cnf:
+        for literal in clause:
+            if literal in lit_clause:
+                lit_clause.update({
+                    literal:lit_clause[literal].append(count)
+                    }) if count not in lit_clause[literal] else True
+            else:
+                lit_clause.update({literal:[count]})
+                if literal>0: n_vars += 1
         count += 1
-    return clauses, n_vars, lit_clause
+    return clauses, n_vars, [ literal if literal is not None else [] for literal in lit_clause.values() ]
 
 
 def get_random_interpretation(n_vars, n_clauses, frontera):
@@ -100,8 +97,8 @@ def run_sat(clauses, n_vars, lit_clause, max_flips_proportion=4):
                                          not true_lit]
 
             if not unsatisfied_clauses_index:
-                
-                return ('v ' + ' '.join(map(str, interpretation[1:])) + ' 0')
+
+                return interpretation[1:]
 
 
             clause_index = random.choice(unsatisfied_clauses_index) # Seleccionamos random una de las clausulas F.
@@ -119,20 +116,6 @@ def run_sat(clauses, n_vars, lit_clause, max_flips_proportion=4):
         if len(unsatisfied_clauses_index) < frontera[1]:
             frontera[0].append(interpretation)
 
-def main(file):
-    clauses, n_vars, lit_clause = parse(file)
-    return run_sat(clauses, n_vars, lit_clause)
-
 def ok(cnf):
-    with open("cnf.cnf", "w") as file:
-        file.write(cnf)
-    response = main(file=open("cnf.cnf"))
-    os.remove("cnf.cnf")
-    return response
-
-if __name__ == '__main__':
-    printado = main(file=open(sys.argv[1]))
-    print('c frontier')
-    print('s SATISFIABLE')
-    print(printado)
-    exit()
+    clauses, n_vars, lit_clause = parse(cnf)
+    return run_sat(clauses, n_vars, lit_clause)
