@@ -13,10 +13,11 @@ def parse(cnf):
     n_vars = 0
     for clause in cnf:
         for literal in clause:
-            if literal in lit_clause and count not in lit_clause[literal]:
-                lit_clause.update({
-                    literal:lit_clause[literal].append(count)
-                    })
+            if literal in lit_clause:
+                if count not in lit_clause[literal]:
+                    lit_clause.update({
+                        literal:lit_clause[literal].append(count)
+                        })
             else:
                 lit_clause.update({literal:[count]})
                 if literal>0: n_vars += 1
