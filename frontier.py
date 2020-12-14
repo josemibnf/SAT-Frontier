@@ -16,7 +16,7 @@ def parse(cnf):
             if literal in lit_clause:
                 if count not in lit_clause[literal]:
                     lit_clause.update({
-                        literal:lit_clause[literal].append(count)
+                        literal: lit_clause[literal].append(count)
                         })
             else:
                 lit_clause.update({literal:[count]})
