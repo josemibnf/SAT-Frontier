@@ -11,16 +11,14 @@ def parse(cnf):
     clauses = cnf
     count = 0
     n_vars = 0
-    print('cnf --> ', cnf)
     for clause in cnf:
         for literal in clause:
-            print('literal --> ', literal)
-            print('lit_clause --> ',lit_clause)
             if literal in lit_clause and count not in lit_clause[literal]:
                 lit_clause[literal].append(count)
             else:
                 lit_clause.update({literal: [count]})
-                if literal > 0: n_vars += 1
+                if n_vars< abs(literal): n_vars = abs(literal)
+
         count += 1
     return clauses, n_vars, [literal if literal is not None else [] for literal in lit_clause.values()]
 
@@ -120,6 +118,5 @@ def run_sat(clauses, n_vars, lit_clause, max_flips_proportion=4):
 
 
 def ok(cnf):
-    print('READY --> ', cnf)
     clauses, n_vars, lit_clause = parse(cnf)
     return run_sat(clauses, n_vars, lit_clause)
