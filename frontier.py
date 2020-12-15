@@ -11,24 +11,24 @@ def parse(cnf):
     clauses = cnf
     count = 0
     n_vars = 0
+    print('cnf --> ', cnf)
     for clause in cnf:
         for literal in clause:
-            if literal in lit_clause:
-                if count not in lit_clause[literal]:
-                    lit_clause.update({
-                        literal: lit_clause[literal].append(count)
-                        })
+            print('literal --> ', literal)
+            print('lit_clause --> ',lit_clause)
+            if literal in lit_clause and count not in lit_clause[literal]:
+                lit_clause[literal].append(count)
             else:
-                lit_clause.update({literal:[count]})
-                if literal>0: n_vars += 1
+                lit_clause.update({literal: [count]})
+                if literal > 0: n_vars += 1
         count += 1
-    return clauses, n_vars, [ literal if literal is not None else [] for literal in lit_clause.values() ]
+    return clauses, n_vars, [literal if literal is not None else [] for literal in lit_clause.values()]
 
 
 def get_random_interpretation(n_vars, n_clauses, frontera):
     valor_0_1 = frontera[1] / n_clauses
-    omega = valor_0_1**(1/1)
-    if random.random() > omega    and len(frontera[0])!=0:
+    omega = valor_0_1 ** (1 / 1)
+    if random.random() > omega and len(frontera[0]) != 0:
         return random.choice(frontera[0])
     else:
         return [i if random.random() < 0.5 else -i for i in range(n_vars + 1)]
@@ -64,7 +64,7 @@ def compute_broken(clause, true_sat_lit, lit_clause, omega=0.4):
 
         for clause_index in lit_clause[literal]:
             if true_sat_lit[clause_index] == 0:
-                daño -=1
+                daño -= 1
 
         if daño < min_daño:
             min_daño = daño
@@ -75,39 +75,40 @@ def compute_broken(clause, true_sat_lit, lit_clause, omega=0.4):
     if min_daño > 0 and random.random() < omega:
         best_literals = clause
         up_frontera = True
-        #Hay una probabilidad omega de que, si no hay un literal perfecto, vayamos a barajar entre todos y no solo los de minimo 'daño'.
+        # Hay una probabilidad omega de que, si no hay un literal perfecto, vayamos a barajar entre todos y no solo los de minimo 'daño'.
 
     return random.choice(best_literals), up_frontera
+
 
 def prune(frontera):
     new = []
     for interpretacion in frontera[0]:
         if interpretacion[1] < frontera[1]:
             new.append(interpretacion)
-    return ( new, frontera[1])
+    return (new, frontera[1])
+
 
 def run_sat(clauses, n_vars, lit_clause, max_flips_proportion=4):
     max_flips = n_vars * max_flips_proportion
     frontera = ([], len(clauses))
     while 1:
         interpretation = get_random_interpretation(n_vars, len(clauses), frontera)
-        true_sat_lit = get_true_sat_lit(clauses, interpretation) # lista de positivos en cada clausula
+        true_sat_lit = get_true_sat_lit(clauses, interpretation)  # lista de positivos en cada clausula
         for _ in range(max_flips):
 
             unsatisfied_clauses_index = [index for index, true_lit in enumerate(true_sat_lit) if
                                          not true_lit]
 
             if not unsatisfied_clauses_index:
-
                 return interpretation[1:]
 
+            clause_index = random.choice(unsatisfied_clauses_index)  # Seleccionamos random una de las clausulas F.
+            unsatisfied_clause = clauses[clause_index]  # Obtenemos la clausula.
 
-            clause_index = random.choice(unsatisfied_clauses_index) # Seleccionamos random una de las clausulas F.
-            unsatisfied_clause = clauses[clause_index] # Obtenemos la clausula.
-
-            lit_to_flip, up_frontera = compute_broken(unsatisfied_clause, true_sat_lit, lit_clause) # Literal que modificamos.
+            lit_to_flip, up_frontera = compute_broken(unsatisfied_clause, true_sat_lit,
+                                                      lit_clause)  # Literal que modificamos.
             if up_frontera:
-                frontera = ( frontera[0] , len(unsatisfied_clauses_index) )
+                frontera = (frontera[0], len(unsatisfied_clauses_index))
                 frontera = prune(frontera)
 
             # Actualizamos interpretacion.
@@ -117,6 +118,8 @@ def run_sat(clauses, n_vars, lit_clause, max_flips_proportion=4):
         if len(unsatisfied_clauses_index) < frontera[1]:
             frontera[0].append(interpretation)
 
+
 def ok(cnf):
+    print('READY --> ', cnf)
     clauses, n_vars, lit_clause = parse(cnf)
     return run_sat(clauses, n_vars, lit_clause)
