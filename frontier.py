@@ -4,6 +4,7 @@ import random
 import sys
 import json
 import os
+from api_pb2 import Interpretation
 
 
 def parse(cnf):
@@ -11,8 +12,8 @@ def parse(cnf):
     clauses = cnf
     count = 0
     n_vars = 0
-    for clause in cnf:
-        for literal in clause:
+    for clause in cnf.clause:
+        for literal in clause.literal:
             if literal in lit_clause and count not in lit_clause[literal]:
                 lit_clause[literal].append(count)
             else:
@@ -119,4 +120,7 @@ def run_sat(clauses, n_vars, lit_clause, max_flips_proportion=4):
 
 def ok(cnf):
     clauses, n_vars, lit_clause = parse(cnf)
-    return run_sat(clauses, n_vars, lit_clause)
+    solution = run_sat(clauses, n_vars, lit_clause)
+    interpretation = Interpretation.Interpretation()
+    interpretation.variable.extend(solution)
+    return interpretation
