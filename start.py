@@ -9,7 +9,7 @@ if __name__ == "__main__":
 
     @app.route('/', methods=['GET', 'POST'])
     def post():
-        cnf = Cnf.Cnf()
+        cnf = Cnf()
         cnf.ParseFromString(request.data)
         solution = frontier.ok(cnf=cnf)
         return send_file(
