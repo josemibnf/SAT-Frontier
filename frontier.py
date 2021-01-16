@@ -123,11 +123,7 @@ def run_sat(clauses, n_vars, lit_clause, max_flips_proportion=4):
 
 
 def ok(cnf):
-    print('cnf --> ', cnf)
     clauses, n_vars, lit_clause = parse(cnf)
-    print('Clauses --> ', clauses)
-    print('N vars --> ', n_vars)
-    print('LitClause --> ', lit_clause)
     solution = run_sat(clauses, n_vars, lit_clause)
     interpretation = Interpretation()
     interpretation.variable.extend(solution)
