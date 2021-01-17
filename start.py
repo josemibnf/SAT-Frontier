@@ -15,7 +15,7 @@ api_pb2_grpc.add_SolverServicer_to_server(
     Solver(), server=server
 )
 
-print('Starting server. Listening on port 50051.')
+print('Starting server. Listening on port 8080.')
 server.add_insecure_port('[::]:8080')
 server.start()
 
